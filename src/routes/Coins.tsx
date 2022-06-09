@@ -25,7 +25,6 @@ const Coin = styled.li`
   background-color: white;
   color: ${(props) => props.theme.bgColor};
   margin-bottom: 10px;
-
   border-radius: 15px;
   a {
     display: flex;
@@ -69,10 +68,12 @@ function Coins() {
     (async () => {
       const response = await fetch("https://api.coinpaprika.com/v1/coins");
       const json = await response.json();
+
       setCoins(json.slice(0, 100));
       setLoading(false);
     })();
   }, []);
+  // console.log(coins);
   return (
     <Container>
       <Header>
@@ -92,7 +93,7 @@ function Coins() {
               > */}
               <Link to={coin.id} state={{ name: coin.name }}>
                 <Img
-                  src={`https://cryptoicon-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
+                  src={`https://coinicons-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
                 />
                 {coin.name} &rarr;
               </Link>

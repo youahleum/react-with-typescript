@@ -1,6 +1,8 @@
-import { useLocation, useParams } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
+import Chart from "./Chart";
+import Price from "./Price";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -22,6 +24,28 @@ const Header = styled.header`
 const Title = styled.h1`
   font-size: 48px;
   color: ${(props) => props.theme.accentColor};
+`;
+
+const Overview = styled.div`
+  display: flex;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 10px;
+`;
+const OverviewItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  span:first-child {
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+`;
+const Description = styled.p`
+  margin: 20px 0px;
 `;
 
 // V5
@@ -90,6 +114,7 @@ interface PriceData {
 function Coin() {
   const [loading, setLoading] = useState(true);
   //V5
+  // 27번줄 v5도 함께 작성해야 함
   // const { coinId } = useParams<RouteParams>();
   //V6
   const { coinId } = useParams();
@@ -100,6 +125,7 @@ function Coin() {
   // console.log(state);
 
   const location = useLocation();
+  console.log(location);
   const state = location.state as RouteState;
   const [info, setInfo] = useState<InfoData>();
   const [priceInfo, setPriceInfo] = useState<PriceData>();
@@ -109,22 +135,61 @@ function Coin() {
       const infoData = await (
         await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
       ).json();
-      console.log(infoData);
+      // console.log(infoData);
       const priceData = await (
         await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
       ).json();
       setInfo(infoData);
       setPriceInfo(priceData);
-      console.log(priceData);
+      // console.log(priceData);
+      setLoading(false);
     })();
-  }, []);
+  }, [coinId]);
   return (
     <Container>
       <Header>
-        <Title>{state?.name || "Loading"}</Title>
+        {/* <Title>{state?.name || "Loading"}</Title> */}
         {/* state가 존재하면 name을 가져오고 존재하지 않으면 "Loading"을 띄워라 */}
+        <Title>
+          {state?.name ? state.name : loading ? "Loading..." : info?.name}
+        </Title>
       </Header>
-      {loading ? <Loader>"Loading..."</Loader> : priceInfo?.quotes.USD}
+
+      {loading ? (
+        <Loader>Loading...</Loader>
+      ) : (
+        <>
+          <Overview>
+            <OverviewItem>
+              <span>Rank:</span>
+              <span>{info?.rank}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Symbol:</span>
+              <span>${info?.symbol}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Open Source:</span>
+              <span>{info?.open_source ? "Yes" : "No"}</span>
+            </OverviewItem>
+          </Overview>
+          <Description>{info?.description}</Description>
+          <Overview>
+            <OverviewItem>
+              <span>Total Suply:</span>
+              <span>{priceInfo?.total_supply}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Max Supply:</span>
+              <span>{priceInfo?.max_supply}</span>
+            </OverviewItem>
+          </Overview>
+          <Routes>
+            <Route path="price" element={<Price />} />
+            <Route path="chart" element={<Chart />} />
+          </Routes>
+        </>
+      )}
     </Container>
   );
 }
