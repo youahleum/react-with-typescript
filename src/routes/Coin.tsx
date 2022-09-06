@@ -216,10 +216,10 @@ function Coin() {
           </Overview>
           <Tabs>
             <Tab>
-              <Link to={`/${coinId}/chart`}>CHART</Link>
+              <Link to={`/:coinId/chart`}>CHART</Link>
             </Tab>
             <Tab>
-              <Link to={`/${coinId}/price`}>PRICE</Link>
+              <Link to={`/:coinId/price`}>PRICE</Link>
             </Tab>
           </Tabs>
           <Routes>
