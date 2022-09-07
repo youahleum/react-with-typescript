@@ -1,11 +1,4 @@
-import {
-  Link,
-  Route,
-  Routes,
-  useLocation,
-  useMatch,
-  useParams,
-} from "react-router-dom";
+import { Link, Route, Routes, useLocation, useMatch, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Chart from "./Chart";
@@ -62,7 +55,7 @@ const Tabs = styled.div`
   gap: 10px;
 `;
 
-const Tab = styled.span`
+const Tab = styled.span<{ isActive: boolean }>`
   text-align: center;
   text-transform: uppercase;
   font-size: 12px;
@@ -70,7 +63,7 @@ const Tab = styled.span`
   background-color: rgba(0, 0, 0, 0.5);
   padding: 7px 0px;
   border-radius: 10px;
-
+  color: ${(props) => (props.isActive ? props.theme.accentColor : props.theme.textColor)};
   a {
     display: block;
   }
@@ -157,18 +150,15 @@ function Coin() {
   const state = location.state as RouteState;
   const [info, setInfo] = useState<InfoData>();
   const [priceInfo, setPriceInfo] = useState<PriceData>();
-  // const priceMatch = useMatch("/coinId/price");
-  // console.log(priceMatch)
+  const priceMatch = useMatch("/:coinId/price");
+  const chartMatch = useMatch("/:coinId/chart");
+  // console.log(priceMatch);
 
   useEffect(() => {
     (async () => {
-      const infoData = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).json();
+      const infoData = await (await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)).json();
       // console.log(infoData);
-      const priceData = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).json();
+      const priceData = await (await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)).json();
       setInfo(infoData);
       setPriceInfo(priceData);
       // console.log(priceData);
@@ -180,9 +170,7 @@ function Coin() {
       <Header>
         {/* <Title>{state?.name || "Loading"}</Title> */}
         {/* state가 존재하면 name을 가져오고 존재하지 않으면 "Loading"을 띄워라 */}
-        <Title>
-          {state?.name ? state.name : loading ? "Loading..." : info?.name}
-        </Title>
+        <Title>{state?.name ? state.name : loading ? "Loading..." : info?.name}</Title>
       </Header>
 
       {loading ? (
@@ -215,16 +203,16 @@ function Coin() {
             </OverviewItem>
           </Overview>
           <Tabs>
-            <Tab>
-              <Link to={`/:coinId/chart`}>CHART</Link>
+            <Tab isActive={chartMatch !== null}>
+              <Link to={`/${coinId}/chart`}>CHART</Link>
             </Tab>
-            <Tab>
-              <Link to={`/:coinId/price`}>PRICE</Link>
+            <Tab isActive={priceMatch !== null}>
+              <Link to={`/${coinId}/price`}>PRICE</Link>
             </Tab>
           </Tabs>
           <Routes>
-            <Route path="price" element={<Price />} />
-            <Route path="chart" element={<Chart />} />
+            <Route path={`/:coinId/price`} element={<Price />} />
+            <Route path={`/:coinId/chart`} element={<Chart />} />
           </Routes>
         </>
       )}
